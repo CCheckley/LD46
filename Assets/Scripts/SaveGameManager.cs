@@ -1,12 +1,12 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 [System.Serializable]
 public class SaveData
 {
-    float time;
-    string name;
+    public Dictionary<string, float> leaderboard;
 }
 
 public static class SaveGameManager
@@ -25,8 +25,7 @@ public static class SaveGameManager
 
     public static SaveData Load()
     {
-        if (!File.Exists(savePath))
-            return null;
+        if (!File.Exists(savePath)) { return new SaveData(); }
 
         BinaryFormatter binaryFormatter = new BinaryFormatter();
 

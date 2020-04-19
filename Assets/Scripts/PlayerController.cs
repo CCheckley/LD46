@@ -1,68 +1,47 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(SpriteRenderer), typeof(CircleCollider2D))]
 public class PlayerController : MonoBehaviour
 {
     new Rigidbody2D rigidbody2D;
 
-    [SerializeField] float sprintTime = 2.0f;
-    [SerializeField] float sprintMultiplier = 1.2f;
-    [SerializeField] float movementSpeed = 100.0f;
-    [SerializeField] float jumpForce = 500.0f;
-    [SerializeField] LayerMask floorLayer;
+    [SerializeField] FieldOfView fov;
 
-    public static List<HouseHoldItem> items;
-
-    float sprintUsed = 0.0f;
-
-    bool isFacingRight;
+    public float movementSpeed = 1000.0f;
 
     void Awake()
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
-        rigidbody2D.constraints = RigidbodyConstraints2D.FreezeRotation;
+
         rigidbody2D.isKinematic = false;
         rigidbody2D.angularDrag = 0.0f;
-
-        isFacingRight = (transform.localScale.x > 0);
+        rigidbody2D.gravityScale = 0.0f;
     }
 
     void Update()
     {
-        Move(Input.GetAxisRaw("Horizontal"), Input.GetButtonDown("Jump"), Input.GetButton("Sprint"));
+        Vector2 targetVelocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        Move(targetVelocity);
+
+        Vector3 targetDirection = GetTargetDirection();
+        Rotate(targetDirection);
+
+        fov.SetAimDirection(targetDirection);
+        fov.SetOrigin(transform.position);
     }
 
-    public void Move(float xInput, bool isJumping, bool isSprinting)
+    void Move(Vector2 targetVelocity)
     {
-        float xDelta = (xInput * movementSpeed) * Time.deltaTime;
-        float yDelta = (isJumping && HasLanded()) ? jumpForce * Time.deltaTime : rigidbody2D.velocity.y;
-
-        if (isSprinting)
-        {
-            xDelta *= sprintMultiplier;
-            sprintUsed += Time.deltaTime;
-        }
-        else { sprintUsed -= Time.deltaTime; }
-
-        Mathf.Clamp(sprintUsed, 0.0f, sprintTime);
-
-        rigidbody2D.velocity = new Vector2(xDelta, yDelta);
-
-        if ((xDelta > 0 && !isFacingRight) || (xDelta < 0 && isFacingRight)) { FlipHorizontal(); }
+        rigidbody2D.velocity = (targetVelocity * movementSpeed) * Time.deltaTime;
     }
 
-    public void FlipHorizontal()
+    Vector3 GetTargetDirection()
     {
-        Vector3 targetScale = transform.localScale;
-        targetScale.x = -transform.localScale.x;
-        transform.localScale = targetScale;
-
-        isFacingRight = !isFacingRight;
+        return Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
     }
 
-    public bool HasLanded()
+    void Rotate(Vector2 targetDirection)
     {
-        return rigidbody2D.IsTouchingLayers(floorLayer);
+        rigidbody2D.rotation = Mathf.Atan2(targetDirection.y, targetDirection.x) * Mathf.Rad2Deg;
     }
 }

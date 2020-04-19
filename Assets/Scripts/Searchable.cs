@@ -9,7 +9,7 @@ public class Searchable : MonoBehaviour
     {
         foreach (HouseHoldItem item in items)
         {
-            PlayerController.items.Add(item);
+            //TODO
         }
         isSearched = true;
     }
