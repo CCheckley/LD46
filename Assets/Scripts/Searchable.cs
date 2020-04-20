@@ -1,16 +1,30 @@
 ﻿using UnityEngine;
 
-public class Searchable : MonoBehaviour
+[RequireComponent(typeof(SpriteRenderer))]
+public class Searchable : Interactable
 {
-    public bool isSearched = false;
-    [SerializeField] HouseHoldItem[] items;
+    SpriteRenderer spriteRenderer;
+    public bool hasComponent = false;
 
-    public void Search()
+    private void Awake()
     {
-        foreach (HouseHoldItem item in items)
-        {
-            //TODO
-        }
-        isSearched = true;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        Reset();
+    }
+
+    public void Reset()
+    {
+        hasComponent = false;
+        spriteRenderer.color = new Color(0, 1, 0);
+    }
+
+    protected override void Interact()
+    {
+        if (player.hasComponent) { return; }
+
+        if (hasComponent) { player.hasComponent = true; }
+
+        hasComponent = false;
+        spriteRenderer.color = new Color(0, 0, 1);
     }
 }

@@ -1,15 +1,40 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public abstract class Interactable : MonoBehaviour
 {
-    public abstract void Interact();
+    protected new Rigidbody2D rigidbody2D;
+    protected PlayerController player;
 
-    private void OnCollisionStay2D(Collision2D collision)
+    void Start()
     {
-        PlayerController playerController = collision.gameObject.GetComponent<PlayerController>();
-        if (playerController && Input.GetButtonDown("Interact"))
+        rigidbody2D = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        if (player != null)
         {
-            Interact();
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Interact();
+            }
         }
     }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        player = collision.gameObject.GetComponent<PlayerController>();
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        player = collision.gameObject.GetComponent<PlayerController>();
+        if (player != null)
+        {
+            player = null;
+        }
+    }
+
+    protected abstract void Interact();
 }

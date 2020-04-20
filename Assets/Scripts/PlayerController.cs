@@ -5,9 +5,13 @@ public class PlayerController : MonoBehaviour
 {
     new Rigidbody2D rigidbody2D;
 
+    [SerializeField] Vector3 playerStartPosition = Vector3.zero;
+
     [SerializeField] FieldOfView fov;
 
     public float movementSpeed = 1000.0f;
+
+    public bool hasComponent = false;
 
     void Awake()
     {
@@ -16,6 +20,12 @@ public class PlayerController : MonoBehaviour
         rigidbody2D.isKinematic = false;
         rigidbody2D.angularDrag = 0.0f;
         rigidbody2D.gravityScale = 0.0f;
+    }
+
+    public void Reset()
+    {
+        transform.position = playerStartPosition;
+        hasComponent = false;
     }
 
     void Update()
@@ -32,7 +42,8 @@ public class PlayerController : MonoBehaviour
 
     void Move(Vector2 targetVelocity)
     {
-        rigidbody2D.velocity = (targetVelocity * movementSpeed) * Time.deltaTime;
+        float currentMovementSpeed = (hasComponent) ? movementSpeed / 2 : movementSpeed;
+        rigidbody2D.velocity = (targetVelocity * currentMovementSpeed) * Time.deltaTime;
     }
 
     Vector3 GetTargetDirection()
